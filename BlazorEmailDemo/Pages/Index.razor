@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using BlazorEmailDemo.EmailService
+@using System.IO
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
@@ -26,6 +27,19 @@ Welcome to your new app.
 
     private async Task SendEmail()
     {
-        await EmailSender.SendEmailAsync(Email, "Test", htmlMessage);
+        //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        //var url = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token = code });
+        string path = @"../BlazorEmailDemo/EMailTemplates/accountConfirmation.html";
+
+        using (StreamReader reader = new StreamReader(path))
+        {
+            htmlMessage = reader.ReadToEnd();
+        }
+        if (!string.IsNullOrEmpty(htmlMessage))
+        {
+            var userName = Email;
+            htmlMessage = htmlMessage.Replace("[userName]", userName);
+        }
+        await EmailSender.SendEmailAsync(Email, "Account confirmation", htmlMessage);
     }
 }
